@@ -1,35 +1,82 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface Supplier {
+  id: number;
+  name: string;
+  contact: string;
 }
 
-export default App
+function App() {
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [name, setName] = useState("");
+  const [contact, setContact] = useState("");
+
+  // Fetch suppliers from backend
+  const fetchSuppliers = async () => {
+    const res = await fetch("http://localhost:5000/api/suppliers");
+    const data = await res.json();
+    setSuppliers(data);
+  };
+
+  // Add new supplier
+  const addSupplier = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = await fetch("http://localhost:5000/api/suppliers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, contact }),
+    });
+    if (res.ok) {
+      setName("");
+      setContact("");
+      fetchSuppliers();
+    }
+  };
+
+  // Delete supplier
+  const deleteSupplier = async (id: number) => {
+    await fetch(`http://localhost:5000/api/suppliers/${id}`, { method: "DELETE" });
+    fetchSuppliers();
+  };
+
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
+
+  return (
+    <div className="app">
+      <h1>Supplier Management</h1>
+
+      <form onSubmit={addSupplier}>
+        <input
+          type="text"
+          placeholder="Supplier Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Contact"
+          value={contact}
+          onChange={(e) => setContact(e.target.value)}
+          required
+        />
+        <button type="submit">Add Supplier</button>
+      </form>
+
+      <ul>
+        {suppliers.map((s) => (
+          <li key={s.id}>
+            <strong>{s.name}</strong> - {s.contact}
+            <button onClick={() => deleteSupplier(s.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
+
