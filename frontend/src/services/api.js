@@ -1,29 +1,45 @@
-const API_URL = "/api/suppliers";
+// services/api.js
 
+const API_URL = "http://localhost:5000/api/suppliers"; // backend URL
+
+// GET all suppliers
 export async function fetchSuppliers() {
-  const response = await fetch(API_URL);
-  if (!response.ok) {
-    throw new Error("Failed to fetch suppliers");
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error("Failed to fetch suppliers");
+    return await res.json();
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
-  return await response.json();
 }
 
+// ADD a supplier
 export async function addSupplier(supplier) {
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(supplier),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to add supplier");
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(supplier),
+    });
+    if (!res.ok) throw new Error("Failed to add supplier");
+    return await res.json();
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
-  return await response.json();
 }
 
+// DELETE a supplier
 export async function deleteSupplier(id) {
-  const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-  if (!response.ok) {
-    throw new Error("Failed to delete supplier");
+  try {
+    const res = await fetch(`${API_URL}/${id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Failed to delete supplier");
+    return await res.json();
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
-  return await response.json();
 }
